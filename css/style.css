@@ -78,11 +78,18 @@ h3 {
 }
 
 .panel-row .panel {
-  flex: 1;
-  min-width: 0;
   margin-bottom: 0;
   padding-left: 10px;
   padding-right: 10px;
+}
+
+.panel-row .bso-block {
+  flex: 0 0 auto;
+}
+
+.panel-row .batting-block {
+  flex: 1;
+  min-width: 0;
 }
 
 .row {
