@@ -3,6 +3,7 @@ import {
   battingTeamOf,
   maxInningOf,
   totalOf,
+  hasBattedInInning,
   formatTournamentDateTime,
 } from "./state.js";
 
@@ -87,7 +88,7 @@ function renderScoreTable(state) {
       const isActive = i === state.inning && battingTeamOf(state) === team;
       if (isActive) td.classList.add("active-cell");
       const val = teamScores[String(i)];
-      td.textContent = val ?? (i < state.inning || (i === state.inning && !isActive) ? "0" : "");
+      td.textContent = val ?? (!isActive && hasBattedInInning(state, team, i) ? "0" : "");
       tr.appendChild(td);
     }
     const totalTd = document.createElement("td");

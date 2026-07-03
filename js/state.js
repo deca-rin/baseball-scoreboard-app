@@ -39,6 +39,15 @@ export function maxInningOf(state) {
   return Math.max(REGULAR_INNINGS, state.inning || 1, ...(innings.length ? innings : [0]));
 }
 
+// そのチームが指定イニングの打席を(一部でも)迎えたかどうか。
+// アウェイは表、ホームは裏でしか打席が来ないため、現在の回・表裏によって判定が変わる。
+export function hasBattedInInning(state, team, inningNum) {
+  if (inningNum < state.inning) return true;
+  if (inningNum > state.inning) return false;
+  if (team === "away") return true; // 表は常に裏より先に来る
+  return state.half === "bottom";
+}
+
 export function totalOf(state, team) {
   const scores = state.scores?.[team] || {};
   return Object.values(scores).reduce((sum, v) => sum + (Number(v) || 0), 0);
