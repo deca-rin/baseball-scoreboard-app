@@ -403,12 +403,20 @@ table.score-table td.active-cell {
 .order-list li {
   display: flex;
   align-items: center;
+  flex-wrap: nowrap;
   gap: 10px;
   padding: 8px 10px;
   border-radius: 8px;
   border: 1px solid transparent;
   color: var(--text-dim);
   font-size: 14px;
+}
+
+.order-list li .name {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .order-list li .num {

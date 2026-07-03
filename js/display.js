@@ -118,7 +118,8 @@ function renderOrder(state) {
     li.appendChild(num);
     if (batter.name) {
       const name = document.createElement("span");
-      name.textContent = batter.name;
+      name.className = "name";
+      name.textContent = batter.name.slice(0, 3);
       li.appendChild(name);
     }
     if (batter.position) {
