@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>スコアボード操縦席</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="setup-error" class="setup-error" style="display:none;">
+  <div class="badge">⚠ SETUP REQUIRED</div>
+  <h1>Firebase の設定が必要です</h1>
+  <p class="small">
+    <code>js/firebase-config.js</code> に Firebase プロジェクトの設定値を貼り付けてください。<br />
+    手順は <code>README.md</code> を参照してください。
+  </p>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="badge">⚾ SCOREBOARD CONTROL</div>
+  <h1>操縦席（入力用）</h1>
+  <p class="small"><a href="history.html" style="color:var(--amber);">📖 過去の大会記録を見る</a></p>
+
+  <div class="panel">
+    <h2>大会情報</h2>
+    <div class="row">
+      <div style="flex:1;">
+        <label>大会名</label>
+        <input type="text" id="tournament-name-input" placeholder="例: 第10回市民野球大会" />
+      </div>
+    </div>
+    <div class="row" style="margin-top:10px;">
+      <div style="flex:1;">
+        <label>日付</label>
+        <input type="date" id="tournament-date-input" />
+      </div>
+      <div style="flex:1;">
+        <label>開始時間</label>
+        <input type="time" id="tournament-time-input" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>共有</h2>
+    <p class="small">ルームコード: <strong id="room-code" style="color:var(--amber)"></strong></p>
+    <div class="share-box">
+      <img id="qr-img" width="120" height="120" alt="表示画面QRコード" />
+      <div style="flex:1; min-width:160px;">
+        <div id="viewer-link" class="share-link"></div>
+        <button id="copy-link-btn" class="ghost" style="margin-top:8px;">リンクをコピー</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>チーム名</h2>
+    <div class="row">
+      <div style="flex:1;">
+        <label><span class="team-tag away"></span>アウェイ（先攻）</label>
+        <input type="text" id="away-name-input" />
+      </div>
+      <div style="flex:1;">
+        <label><span class="team-tag home"></span>ホーム（後攻）</label>
+        <input type="text" id="home-name-input" />
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>試合状況</h2>
+    <div class="inning-indicator" id="inning-half-display" style="text-align:center;"></div>
+    <p class="small" id="batting-team-label" style="text-align:center; margin:6px 0 12px;"></p>
+    <div class="btn-grid">
+      <button class="primary" id="switch-half-btn">▼ 攻守交代</button>
+      <button class="primary" id="add-run-btn">＋1点</button>
+    </div>
+    <div class="row" style="margin-top:14px;">
+      <div>
+        <label>回</label>
+        <input type="number" id="manual-inning-input" min="1" style="width:70px;" />
+      </div>
+      <div>
+        <label>表裏</label>
+        <select id="manual-half-select">
+          <option value="top">表</option>
+          <option value="bottom">裏</option>
+        </select>
+      </div>
+      <button class="ghost" id="apply-manual-btn">手動で適用（訂正用）</button>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>ボール・ストライク・アウト</h2>
+    <div class="bso-panel">
+      <div class="bso-row">
+        <div class="bso-letter b">B</div>
+        <div class="lights" id="balls-lights"></div>
+      </div>
+      <div class="bso-row">
+        <div class="bso-letter s">S</div>
+        <div class="lights" id="strikes-lights"></div>
+      </div>
+      <div class="bso-row">
+        <div class="bso-letter o">O</div>
+        <div class="lights" id="outs-lights"></div>
+      </div>
+    </div>
+    <div class="btn-grid cols-3" style="margin-top:14px;">
+      <button class="ball" id="add-ball-btn">ボール＋1</button>
+      <button class="strike" id="add-strike-btn">ストライク＋1</button>
+      <button class="out" id="add-out-btn">アウト＋1</button>
+    </div>
+    <button class="ghost" id="reset-count-btn" style="width:100%; margin-top:10px;">カウントをリセット（訂正用）</button>
+  </div>
+
+  <div class="panel score-table-wrap">
+    <h2>得点表（タップで訂正できます）</h2>
+    <table class="score-table">
+      <thead><tr id="score-table-head"></tr></thead>
+      <tbody id="score-table-body"></tbody>
+    </table>
+  </div>
+
+  <div class="panel batting-panel">
+    <h2>打順</h2>
+    <div class="tabs">
+      <button id="order-tab-away">アウェイ</button>
+      <button id="order-tab-home">ホーム</button>
+    </div>
+    <ul class="order-list" id="order-list-away"></ul>
+    <ul class="order-list" id="order-list-home"></ul>
+    <button class="primary" id="advance-batter-btn" style="width:100%; margin-top:12px;">次の打者へ（表示中のチーム）</button>
+  </div>
+
+  <div class="panel">
+    <h2>試合の記録</h2>
+    <p class="small">試合が終わったら保存してください。保存すると「過去の大会記録」から検索できるようになります。</p>
+    <button class="primary" id="save-archive-btn" style="width:100%;">💾 この試合を記録として保存</button>
+    <button class="ghost" id="reset-game-btn" style="width:100%; margin-top:10px;">🔄 リセットして次の試合へ</button>
+  </div>
+</div>
+
+<script type="module" src="js/control.js"></script>
+</body>
+</html>

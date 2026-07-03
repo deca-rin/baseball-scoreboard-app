@@ -1,0 +1,512 @@
+@import url("https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Press+Start+2P&display=swap");
+
+:root {
+  --bg: #05070f;
+  --bg-glow: radial-gradient(ellipse at top, #0e1730 0%, #05070f 60%);
+  --panel: #0d1326;
+  --panel-border: #232c4d;
+  --text: #e8ecff;
+  --text-dim: #7c86b3;
+  --amber: #ffb703;
+  --amber-glow: 0 0 6px rgba(255, 183, 3, 0.85), 0 0 16px rgba(255, 183, 3, 0.5);
+  --away: #4fa8ff;
+  --home: #ff5c7a;
+  --ball: #22c55e;
+  --strike: #eab308;
+  --out: #ef4444;
+  --off: #1c2340;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg-glow), var(--bg);
+  color: var(--text);
+  font-family: "Orbitron", "Hiragino Sans", "Yu Gothic", sans-serif;
+  min-height: 100vh;
+}
+
+body {
+  padding: 16px;
+  padding-bottom: 48px;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0 0 8px;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-block;
+  font-family: "Press Start 2P", "Orbitron", sans-serif;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--amber);
+  text-shadow: var(--amber-glow);
+  margin-bottom: 6px;
+}
+
+.panel {
+  background: linear-gradient(180deg, #101833 0%, #0a0f22 100%);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  padding: 14px 16px;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.panel h2 {
+  font-size: 14px;
+  color: var(--text-dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.panel-row {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.panel-row .panel {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.row + .row {
+  margin-top: 10px;
+}
+
+label {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+input[type="text"],
+input[type="number"],
+select {
+  background: #060a18;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 15px;
+  width: 100%;
+}
+
+input[type="number"] {
+  text-align: center;
+}
+
+button {
+  font-family: inherit;
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid var(--panel-border);
+  background: #141c3a;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: transform 0.05s ease, background 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:active {
+  transform: scale(0.96);
+}
+
+button.primary {
+  background: linear-gradient(180deg, #2a63ff, #1642c9);
+  border-color: #3a6bff;
+  color: #fff;
+}
+
+button.ball {
+  background: linear-gradient(180deg, #1e6e3d, #124a28);
+  border-color: var(--ball);
+}
+
+button.strike {
+  background: linear-gradient(180deg, #8a6c0c, #5c4708);
+  border-color: var(--strike);
+}
+
+button.out {
+  background: linear-gradient(180deg, #8a2020, #5c1414);
+  border-color: var(--out);
+}
+
+button.ghost {
+  background: transparent;
+  color: var(--text-dim);
+}
+
+.btn-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.btn-grid.cols-3 {
+  grid-template-columns: 1fr 1fr 1fr;
+}
+
+/* ---- lights (BSO) ---- */
+.lights {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.light {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--off);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.light.on.b {
+  background: var(--ball);
+  box-shadow: 0 0 8px var(--ball), 0 0 18px rgba(34, 197, 94, 0.6);
+}
+
+.light.on.s {
+  background: var(--strike);
+  box-shadow: 0 0 8px var(--strike), 0 0 18px rgba(234, 179, 8, 0.6);
+}
+
+.light.on.o {
+  background: var(--out);
+  box-shadow: 0 0 8px var(--out), 0 0 18px rgba(239, 68, 68, 0.6);
+}
+
+/* ---- scoreboard (display) ---- */
+.scoreboard-header {
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.scoreboard-header .live {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: "Press Start 2P", sans-serif;
+  font-size: 10px;
+  color: var(--out);
+}
+
+.live .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--out);
+  box-shadow: 0 0 8px var(--out);
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.25; }
+}
+
+.tournament-info {
+  margin-top: 8px;
+}
+
+.tournament-info #display-tournament-name,
+#detail-tournament-name {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.history-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #0a0f22;
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  color: var(--text);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.history-item:active {
+  transform: scale(0.98);
+}
+
+.history-item-title {
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.history-item-score {
+  margin-top: 4px;
+  font-family: "Orbitron", sans-serif;
+  color: var(--amber);
+  font-weight: 700;
+}
+
+.inning-indicator {
+  font-family: "Press Start 2P", sans-serif;
+  font-size: 16px;
+  color: var(--amber);
+  text-shadow: var(--amber-glow);
+  margin-top: 6px;
+  letter-spacing: 1px;
+}
+
+.score-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+table.score-table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 420px;
+}
+
+table.score-table th,
+table.score-table td {
+  border: 1px solid var(--panel-border);
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+table.score-table th {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+}
+
+table.score-table td.score-cell {
+  font-family: "Orbitron", sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--amber);
+  text-shadow: var(--amber-glow);
+}
+
+table.score-table td.total-cell {
+  font-size: 24px;
+  color: #fff;
+  text-shadow: var(--amber-glow);
+  background: rgba(255, 183, 3, 0.06);
+}
+
+table.score-table td.team-name {
+  text-align: left;
+  font-weight: 700;
+  color: var(--text);
+  white-space: nowrap;
+  padding-left: 10px;
+}
+
+table.score-table td.active-cell {
+  background: rgba(255, 183, 3, 0.12);
+}
+
+.team-tag {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-right: 6px;
+}
+
+.team-tag.away { background: var(--away); }
+.team-tag.home { background: var(--home); }
+
+.bso-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: #000;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.bso-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.bso-row .lights {
+  gap: 10px;
+}
+
+.bso-letter {
+  width: 34px;
+  flex-shrink: 0;
+  text-align: center;
+  font-family: "Orbitron", sans-serif;
+  font-weight: 900;
+  font-size: 22px;
+}
+
+.bso-letter.b { color: var(--ball); text-shadow: 0 0 8px rgba(34, 197, 94, 0.8); }
+.bso-letter.s { color: var(--strike); text-shadow: 0 0 8px rgba(234, 179, 8, 0.8); }
+.bso-letter.o { color: var(--out); text-shadow: 0 0 8px rgba(239, 68, 68, 0.8); }
+
+.batting-panel .team-title {
+  display: flex;
+  align-items: center;
+  font-size: 13px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.order-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.order-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  color: var(--text-dim);
+  font-size: 14px;
+}
+
+.order-list li .num {
+  font-family: "Orbitron", sans-serif;
+  font-weight: 700;
+  color: var(--text-dim);
+  width: 20px;
+  text-align: center;
+}
+
+.order-list li.current {
+  background: rgba(255, 183, 3, 0.12);
+  border-color: var(--amber);
+  color: var(--text);
+}
+
+.order-list li.current .num {
+  color: var(--amber);
+  text-shadow: var(--amber-glow);
+}
+
+.order-list li .pos {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-left: auto;
+}
+
+.order-list li.current::before {
+  content: "▶";
+  color: var(--amber);
+}
+
+.updated-at {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 10px;
+}
+
+.setup-error {
+  max-width: 520px;
+  margin: 40px auto;
+  text-align: center;
+  line-height: 1.8;
+}
+
+.setup-error code {
+  background: #060a18;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--amber);
+}
+
+.share-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.share-box img {
+  border-radius: 8px;
+  border: 1px solid var(--panel-border);
+  background: #fff;
+  padding: 4px;
+}
+
+.share-link {
+  flex: 1;
+  min-width: 180px;
+  word-break: break-all;
+  font-size: 12px;
+  color: var(--text-dim);
+  background: #060a18;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tabs button {
+  flex: 1;
+  background: #0a0f22;
+  color: var(--text-dim);
+}
+
+.tabs button.active {
+  background: linear-gradient(180deg, #2a63ff, #1642c9);
+  color: #fff;
+  border-color: #3a6bff;
+}
+
+.small {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+@media (min-width: 720px) {
+  body {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+}

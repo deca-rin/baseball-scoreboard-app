@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ライブスコアボード</title>
+<link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div id="setup-error" class="setup-error" style="display:none;">
+  <div class="badge">⚠ SETUP REQUIRED</div>
+  <h1>Firebase の設定が必要です</h1>
+  <p class="small">
+    <code>js/firebase-config.js</code> に Firebase プロジェクトの設定値を貼り付けてください。<br />
+    手順は <code>README.md</code> を参照してください。
+  </p>
+</div>
+
+<div id="app" style="display:none;">
+  <div class="scoreboard-header">
+    <div class="live"><span class="dot"></span>LIVE</div>
+    <div class="tournament-info" id="display-tournament-info" style="display:none;">
+      <div id="display-tournament-name"></div>
+      <div id="display-tournament-datetime" class="small"></div>
+    </div>
+    <h1 style="font-size:20px; margin-top:8px;">
+      <span id="display-away-name">アウェイ</span>
+      <span style="color:var(--text-dim); font-size:14px;"> vs </span>
+      <span id="display-home-name">ホーム</span>
+    </h1>
+    <div class="inning-indicator">
+      <span id="half-arrow"></span> <span id="display-inning-half"></span>
+    </div>
+  </div>
+
+  <div class="panel score-table-wrap">
+    <table class="score-table">
+      <thead><tr id="display-score-head"></tr></thead>
+      <tbody id="display-score-body"></tbody>
+    </table>
+  </div>
+
+  <div class="panel-row">
+    <div class="panel">
+      <h2 style="text-align:center;">COUNT</h2>
+      <div class="bso-panel">
+        <div class="bso-row">
+          <div class="bso-letter b">B</div>
+          <div class="lights" id="display-balls-lights"></div>
+        </div>
+        <div class="bso-row">
+          <div class="bso-letter s">S</div>
+          <div class="lights" id="display-strikes-lights"></div>
+        </div>
+        <div class="bso-row">
+          <div class="bso-letter o">O</div>
+          <div class="lights" id="display-outs-lights"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h2 id="display-batting-team" style="text-transform:none; text-align:center;"></h2>
+      <ul class="order-list" id="display-order-list"></ul>
+    </div>
+  </div>
+
+  <div class="updated-at" id="display-updated-at"></div>
+  <p class="small" style="text-align:center; margin-top:10px;">
+    <a href="history.html" style="color:var(--text-dim);">過去の大会記録を見る</a>
+  </p>
+</div>
+
+<script type="module" src="js/display.js"></script>
+</body>
+</html>
