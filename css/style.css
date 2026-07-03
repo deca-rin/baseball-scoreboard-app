@@ -354,29 +354,29 @@ table.score-table td.active-cell {
 .bso-panel {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
   background: #000;
   border-radius: 10px;
-  padding: 14px 16px;
+  padding: 10px 12px;
 }
 
 .bso-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-}
-
-.bso-row .lights {
   gap: 10px;
 }
 
+.bso-row .lights {
+  gap: 6px;
+}
+
 .bso-letter {
-  width: 34px;
+  width: 26px;
   flex-shrink: 0;
   text-align: center;
   font-family: "Orbitron", sans-serif;
   font-weight: 900;
-  font-size: 22px;
+  font-size: 18px;
 }
 
 .bso-letter.b { color: var(--ball); text-shadow: 0 0 8px rgba(34, 197, 94, 0.8); }

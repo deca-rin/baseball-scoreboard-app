@@ -112,15 +112,17 @@ function renderOrder(state) {
     const batter = order[idx];
     const li = document.createElement("li");
     if (offset === 0) li.classList.add("current");
-    const num = document.createElement("span");
-    num.className = "num";
-    num.textContent = idx + 1;
-    li.appendChild(num);
     if (batter.name) {
+      // 名前がある場合は打順の数字より名前(最低3文字)の表示を優先する
       const name = document.createElement("span");
       name.className = "name";
       name.textContent = batter.name.slice(0, 3);
       li.appendChild(name);
+    } else {
+      const num = document.createElement("span");
+      num.className = "num";
+      num.textContent = idx + 1;
+      li.appendChild(num);
     }
     if (batter.position) {
       const pos = document.createElement("span");
