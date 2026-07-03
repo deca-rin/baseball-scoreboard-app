@@ -116,9 +116,11 @@ function renderOrder(state) {
     num.className = "num";
     num.textContent = idx + 1;
     li.appendChild(num);
-    const name = document.createElement("span");
-    name.textContent = batter.name || `${idx + 1}番`;
-    li.appendChild(name);
+    if (batter.name) {
+      const name = document.createElement("span");
+      name.textContent = batter.name;
+      li.appendChild(name);
+    }
     if (batter.position) {
       const pos = document.createElement("span");
       pos.className = "pos";
