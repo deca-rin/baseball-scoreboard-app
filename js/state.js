@@ -11,6 +11,7 @@ export function defaultState() {
       away: { name: "アウェイ" },
       home: { name: "ホーム" },
     },
+    finalInning: REGULAR_INNINGS,
     inning: 1,
     half: "top", // "top" = 表(アウェイ攻撃) / "bottom" = 裏(ホーム攻撃)
     count: { balls: 0, strikes: 0, outs: 0 },
@@ -31,12 +32,16 @@ export function fieldingTeamOf(state) {
   return state.half === "top" ? "home" : "away";
 }
 
+export function finalInningOf(state) {
+  return state.finalInning || REGULAR_INNINGS;
+}
+
 export function maxInningOf(state) {
   const innings = [
     ...Object.keys(state.scores?.away || {}),
     ...Object.keys(state.scores?.home || {}),
   ].map(Number);
-  return Math.max(REGULAR_INNINGS, state.inning || 1, ...(innings.length ? innings : [0]));
+  return Math.max(finalInningOf(state), state.inning || 1, ...(innings.length ? innings : [0]));
 }
 
 // そのチームが指定イニングの打席を(一部でも)迎えたかどうか。
@@ -57,7 +62,7 @@ export function totalOf(state, team) {
 // 裏の攻撃をする必要がない場合に「×」を表示するための判定。
 export function shouldShowX(state, inningNum) {
   if (inningNum !== state.inning) return false;
-  if (inningNum < REGULAR_INNINGS) return false;
+  if (inningNum < finalInningOf(state)) return false;
   if (state.half !== "bottom") return false;
   return totalOf(state, "home") > totalOf(state, "away");
 }

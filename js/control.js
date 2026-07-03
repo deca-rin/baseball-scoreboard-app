@@ -4,6 +4,7 @@ import {
   defaultState,
   battingTeamOf,
   maxInningOf,
+  finalInningOf,
   viewerUrlFor,
 } from "./state.js";
 
@@ -40,6 +41,7 @@ const els = {
   tournamentName: document.getElementById("tournament-name-input"),
   tournamentDate: document.getElementById("tournament-date-input"),
   tournamentTime: document.getElementById("tournament-time-input"),
+  finalInningSelect: document.getElementById("final-inning-select"),
   saveArchiveBtn: document.getElementById("save-archive-btn"),
   resetGameBtn: document.getElementById("reset-game-btn"),
 };
@@ -65,6 +67,7 @@ function render() {
   els.tournamentName.value = tournament.name || "";
   els.tournamentDate.value = tournament.date || "";
   els.tournamentTime.value = tournament.startTime || "";
+  els.finalInningSelect.value = String(finalInningOf(state));
 
   els.awayName.value = state.teams.away.name;
   els.homeName.value = state.teams.home.name;
@@ -246,6 +249,9 @@ function bindEvents() {
   });
   els.tournamentTime.addEventListener("change", () => {
     game.patch({ "tournament/startTime": els.tournamentTime.value });
+  });
+  els.finalInningSelect.addEventListener("change", () => {
+    game.patch({ finalInning: Number(els.finalInningSelect.value) });
   });
 
   els.saveArchiveBtn.addEventListener("click", async () => {
