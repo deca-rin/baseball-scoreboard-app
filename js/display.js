@@ -4,6 +4,7 @@ import {
   maxInningOf,
   totalOf,
   hasBattedInInning,
+  shouldShowX,
   formatTournamentDateTime,
 } from "./state.js";
 
@@ -88,7 +89,13 @@ function renderScoreTable(state) {
       const isActive = i === state.inning && battingTeamOf(state) === team;
       if (isActive) td.classList.add("active-cell");
       const val = teamScores[String(i)];
-      td.textContent = val ?? (!isActive && hasBattedInInning(state, team, i) ? "0" : "");
+      if (val !== undefined) {
+        td.textContent = val;
+      } else if (team === "home" && shouldShowX(state, i)) {
+        td.textContent = "×";
+      } else {
+        td.textContent = !isActive && hasBattedInInning(state, team, i) ? "0" : "";
+      }
       tr.appendChild(td);
     }
     const totalTd = document.createElement("td");

@@ -53,6 +53,15 @@ export function totalOf(state, team) {
   return Object.values(scores).reduce((sum, v) => sum + (Number(v) || 0), 0);
 }
 
+// 最終回(以降)の裏で、ホームが表の時点で既にリードしていて
+// 裏の攻撃をする必要がない場合に「×」を表示するための判定。
+export function shouldShowX(state, inningNum) {
+  if (inningNum !== state.inning) return false;
+  if (inningNum < REGULAR_INNINGS) return false;
+  if (state.half !== "bottom") return false;
+  return totalOf(state, "home") > totalOf(state, "away");
+}
+
 export function getRoomId() {
   const params = new URLSearchParams(location.search);
   let room = params.get("room");
