@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>使い方ガイド</title>
+<link rel="stylesheet" href="css/style.css" />
+<style>
+  .help-panel h3 {
+    font-size: 15px;
+    color: var(--amber);
+    text-shadow: var(--amber-glow);
+    margin: 18px 0 8px;
+  }
+  .help-panel h3:first-child {
+    margin-top: 0;
+  }
+  .help-panel p,
+  .help-panel li {
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.7;
+  }
+  .help-panel ol,
+  .help-panel ul {
+    margin: 4px 0 12px;
+    padding-left: 20px;
+  }
+  .help-panel .note {
+    background: rgba(255, 183, 3, 0.08);
+    border: 1px solid var(--panel-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text-dim);
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="badge">📘 GUIDE</div>
+<h1>使い方ガイド</h1>
+<p class="small"><a href="index.html" style="color:var(--amber);">← 操縦席へ戻る</a></p>
+
+<div class="panel help-panel">
+  <h3>このアプリでできること</h3>
+  <p>
+    誰か一人（スコアラー）がスコアを入力すると、他の人たちがそれぞれのスマホで
+    リアルタイムに試合の様子（得点・ボール/ストライク/アウト・打順）を見られる
+    野球用のライブスコアボードです。試合が終わったら記録として保存し、あとから
+    大会名や日付で検索することもできます。
+  </p>
+</div>
+
+<div class="panel help-panel">
+  <h3>① 入力する人（スコアラー）向け：操縦席の使い方</h3>
+  <ol>
+    <li><a href="index.html">操縦席（入力用）</a>を開きます。</li>
+    <li>「大会情報」欄に大会名・日付・開始時間・最終回（何回制か）を入力します。</li>
+    <li>「チーム名」欄にアウェイ（先攻）・ホーム（後攻）のチーム名を入力します。</li>
+    <li>「共有」欄に表示されるQRコードまたはリンクを、観戦者に共有します。</li>
+    <li>試合が始まったら、以下のボタンで状況を更新します。
+      <ul>
+        <li><strong>＋1点</strong>：現在攻撃中のチームに1点追加</li>
+        <li><strong>ボール＋1／ストライク＋1／アウト＋1</strong>：カウントを進める（4ボールや3ストライク、3アウトになると自動で処理されます）</li>
+        <li><strong>▼ 攻守交代</strong>：表裏を手動で切り替える</li>
+        <li><strong>次の打者へ</strong>：打順を1つ進める</li>
+      </ul>
+    </li>
+    <li>入力を間違えた場合は、得点表のマス目や「カウントをリセット」「手動で適用」から訂正できます。</li>
+  </ol>
+  <div class="note">
+    得点表は数字をタップ（クリック）すると直接書き換えられます。訂正用に自由に使ってください。
+  </div>
+</div>
+
+<div class="panel help-panel">
+  <h3>② 試合の記録を保存する</h3>
+  <ol>
+    <li>試合が終わったら、操縦席いちばん下の「💾 この試合を記録として保存」ボタンを押します。</li>
+    <li>保存すると、大会名・日付・スコア・打順が記録として残ります。</li>
+    <li>次の試合を入力する前に「🔄 リセットして次の試合へ」を押すと、大会名・日付はそのままに、得点やカウント・打順だけがまっさらな状態に戻ります。</li>
+  </ol>
+</div>
+
+<div class="panel help-panel">
+  <h3>③ 見る人（観戦者）向け：表示画面の使い方</h3>
+  <p>
+    スコアラーから共有されたリンクを開くか、QRコードを読み取るだけです。
+    自分で何か入力する必要はなく、スコアラーの操作がそのまま自動的に反映されます。
+  </p>
+</div>
+
+<div class="panel help-panel">
+  <h3>④ 過去の大会記録を探す</h3>
+  <ol>
+    <li><a href="history.html">過去の大会記録</a>のページを開きます。</li>
+    <li>大会名（一部でもOK）や日付で絞り込めます。</li>
+    <li>試合をタップすると、得点表と打順の詳細が確認できます。</li>
+  </ol>
+</div>
+
+<div class="panel help-panel">
+  <h3>⑤ 複数チーム・複数試合で使う場合</h3>
+  <p>
+    操縦席の「共有」欄にある「ルーム名を変更」から、チームごとに分かりやすい名前
+    （例: <code>team-a</code>）を設定できます。名前を変えると、そのチーム専用の
+    URLになり、他のチームの入力と混ざりません。同じ名前で開き直せば、前回の続き
+    から再開できます。
+  </p>
+  <div class="note">
+    URLの例: <br />
+    <code>index.html?room=team-a</code>
+  </div>
+</div>
+
+<div class="panel help-panel">
+  <h3>よくある質問</h3>
+  <p><strong>Q. 画面が真っ黒/エラーが出て使えません。</strong><br />
+  A. ネットワークに接続されているか確認してください。うまく直らない場合は、この
+  アプリを用意した人に連絡してください。</p>
+  <p><strong>Q. 得点を間違えて入力してしまいました。</strong><br />
+  A. 得点表のマス目は直接タップして書き換えられます。ボール/ストライク/アウトは
+  「カウントをリセット」で0に戻せます。</p>
+  <p><strong>Q. 誰でもスコアを書き換えられてしまいますか？</strong><br />
+  A. 共有リンク（表示画面）は閲覧のみで、書き換えはできません。書き換えられるのは
+  操縦席（入力用）のURLを知っている人だけです。</p>
+</div>
+
+</body>
+</html>
