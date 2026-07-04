@@ -78,6 +78,7 @@ function render() {
   els.inningHalfDisplay.textContent = `${state.inning} 回 ${halfLabel}`;
   const battingTeam = battingTeamOf(state);
   els.battingTeamLabel.textContent = `現在の攻撃: ${state.teams[battingTeam].name}`;
+  els.advanceBatterBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
   els.manualInning.value = state.inning;
   els.manualHalf.value = state.half;
 
@@ -311,7 +312,7 @@ function bindEvents() {
   });
 
   els.advanceBatterBtn.addEventListener("click", () => {
-    game.patch(advanceBatter(activeOrderTeam));
+    game.patch(advanceBatter(battingTeamOf(state)));
   });
 
   els.orderTabAway.addEventListener("click", () => {
