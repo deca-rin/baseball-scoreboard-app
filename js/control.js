@@ -31,6 +31,7 @@ const els = {
   addBallBtn: document.getElementById("add-ball-btn"),
   addStrikeBtn: document.getElementById("add-strike-btn"),
   addOutBtn: document.getElementById("add-out-btn"),
+  hitAdvanceBtn: document.getElementById("hit-advance-btn"),
   resetCountBtn: document.getElementById("reset-count-btn"),
   orderTabAway: document.getElementById("order-tab-away"),
   orderTabHome: document.getElementById("order-tab-home"),
@@ -79,6 +80,7 @@ function render() {
   const battingTeam = battingTeamOf(state);
   els.battingTeamLabel.textContent = `現在の攻撃: ${state.teams[battingTeam].name}`;
   els.advanceBatterBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
+  els.hitAdvanceBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
   els.manualInning.value = state.inning;
   els.manualHalf.value = state.half;
 
@@ -307,6 +309,14 @@ function bindEvents() {
   els.addBallBtn.addEventListener("click", recordBall);
   els.addStrikeBtn.addEventListener("click", recordStrike);
   els.addOutBtn.addEventListener("click", recordOut);
+  els.hitAdvanceBtn.addEventListener("click", () => {
+    const battingTeam = battingTeamOf(state);
+    game.patch({
+      "count/balls": 0,
+      "count/strikes": 0,
+      ...advanceBatter(battingTeam),
+    });
+  });
   els.resetCountBtn.addEventListener("click", () => {
     game.patch({ "count/balls": 0, "count/strikes": 0, "count/outs": 0 });
   });
