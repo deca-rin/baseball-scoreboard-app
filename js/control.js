@@ -15,6 +15,8 @@ const els = {
   viewerLink: document.getElementById("viewer-link"),
   qrImg: document.getElementById("qr-img"),
   copyLinkBtn: document.getElementById("copy-link-btn"),
+  changeRoomInput: document.getElementById("change-room-input"),
+  changeRoomBtn: document.getElementById("change-room-btn"),
   awayName: document.getElementById("away-name-input"),
   homeName: document.getElementById("home-name-input"),
   inningHalfDisplay: document.getElementById("inning-half-display"),
@@ -342,6 +344,18 @@ function bindEvents() {
       /* clipboard unavailable; link text is already selectable */
     }
   });
+
+  els.changeRoomBtn.addEventListener("click", () => {
+    const raw = els.changeRoomInput.value.trim();
+    const sanitized = raw.replace(/[^a-zA-Z0-9-_]/g, "");
+    if (!sanitized) {
+      alert("ルーム名は半角英数字・ハイフン・アンダースコアで入力してください。");
+      return;
+    }
+    const url = new URL(location.href);
+    url.searchParams.set("room", sanitized);
+    location.href = url.toString();
+  });
 }
 
 async function main() {
@@ -355,6 +369,7 @@ async function main() {
   els.setupError.style.display = "none";
   els.app.style.display = "block";
   els.roomCode.textContent = game.room;
+  els.changeRoomInput.value = game.room;
   const link = viewerUrlFor(game.room);
   els.viewerLink.textContent = link;
   els.qrImg.src = `https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${encodeURIComponent(
