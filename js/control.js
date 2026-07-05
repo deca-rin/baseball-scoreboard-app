@@ -82,6 +82,8 @@ function render() {
 
   els.awayName.value = state.teams.away.name;
   els.homeName.value = state.teams.home.name;
+  els.orderTabAway.textContent = state.teams.away.name;
+  els.orderTabHome.textContent = state.teams.home.name;
 
   const halfLabel = state.half === "top" ? "表" : "裏";
   els.inningHalfDisplay.textContent = `${state.inning} 回 ${halfLabel}`;
