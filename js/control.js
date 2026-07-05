@@ -54,11 +54,19 @@ let game = null;
 let archives = null;
 let activeOrderTeam = "away";
 
-function lights(container, count, max, cls) {
+function lights(container, count, max, cls, onSetCount) {
   container.innerHTML = "";
   for (let i = 0; i < max; i++) {
     const dot = document.createElement("span");
     dot.className = `light ${cls}${i < count ? " on" : ""}`;
+    if (onSetCount) {
+      dot.classList.add("editable");
+      dot.addEventListener("click", () => {
+        // 既に点灯している最後のドットをタップした場合はその位置まで減らす。
+        // それ以外はタップした位置まで数を直接セットする（訂正用）。
+        onSetCount(i + 1 === count ? i : i + 1);
+      });
+    }
     container.appendChild(dot);
   }
 }
@@ -84,9 +92,9 @@ function render() {
   els.manualInning.value = state.inning;
   els.manualHalf.value = state.half;
 
-  lights(els.ballsLights, state.count.balls, 3, "b");
-  lights(els.strikesLights, state.count.strikes, 2, "s");
-  lights(els.outsLights, state.count.outs, 2, "o");
+  lights(els.ballsLights, state.count.balls, 3, "b", (n) => game.patch({ "count/balls": n }));
+  lights(els.strikesLights, state.count.strikes, 2, "s", (n) => game.patch({ "count/strikes": n }));
+  lights(els.outsLights, state.count.outs, 2, "o", (n) => game.patch({ "count/outs": n }));
 
   renderScoreTable();
   renderOrderList("away");
