@@ -1,0 +1,15 @@
+{
+  "name": "ライブスコアボード",
+  "short_name": "スコアボード",
+  "description": "野球ライブスコアボードの表示用アプリ",
+  "start_url": "./display.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#05070f",
+  "theme_color": "#05070f",
+  "icons": [
+    { "src": "icons/icon-display-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icons/icon-display-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
