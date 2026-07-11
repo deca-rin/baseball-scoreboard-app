@@ -80,12 +80,31 @@
       </div>
     </div>
     <p class="small" style="margin-top:14px;">
-      チームごとに専用のURLを持たせたい場合は、分かりやすいルーム名に変更できます（例: <code>team-a</code>）。同じ名前で開けば同じ試合の続きに戻れます。
+      チームごとに専用のURLを持たせたい場合は、分かりやすいルーム名に変更できます（例: <code>team-a</code>）。
+      名前の重複を防ぐため、メールアドレスでの簡単な登録・確認が必要です。同じ名前で再度ログインすれば、同じ試合の続きに戻れます。
     </p>
     <div class="row">
       <input type="text" id="change-room-input" placeholder="例: team-a" style="flex:1;" />
-      <button class="ghost" id="change-room-btn">このルーム名で開く</button>
     </div>
+
+    <p class="small" id="room-auth-status" style="margin-top:10px;">未ログイン</p>
+    <p class="small" id="room-auth-message" style="color:var(--out);"></p>
+
+    <div id="room-auth-form">
+      <div class="row" style="margin-top:6px;">
+        <input type="email" id="auth-email-input" placeholder="メールアドレス" style="flex:1;" />
+      </div>
+      <div class="row" style="margin-top:10px;">
+        <input type="password" id="auth-password-input" placeholder="パスワード（6文字以上）" style="flex:1;" />
+      </div>
+      <div class="btn-grid" style="margin-top:10px;">
+        <button class="primary" id="signup-claim-btn">新規登録してこの名前を使う</button>
+        <button class="ghost" id="signin-claim-btn">ログインしてこの名前を使う</button>
+      </div>
+    </div>
+
+    <button class="ghost" id="use-room-btn" style="width:100%; margin-top:10px; display:none;">このルーム名を使う</button>
+    <button class="ghost" id="room-signout-btn" style="width:100%; margin-top:10px; display:none;">ログアウト</button>
   </div>
 
   <div class="panel">

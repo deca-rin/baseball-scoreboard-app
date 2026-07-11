@@ -114,10 +114,73 @@ function getFirebase() {
       );
       const app = initializeApp(firebaseConfig);
       const db = dbModule.getDatabase(app);
-      return { db, ...dbModule };
+      return { app, db, ...dbModule };
     })();
   }
   return firebasePromise;
+}
+
+// チーム名(ルーム名)の重複を防ぐための、Firebase Authenticationを使った登録・確認。
+// メール/パスワードでサインアップ/ログインし、そのUIDをルーム名の「所有者」として
+// roomRegistry に記録する。実際のスコア入力・閲覧(games/archives)はログイン不要のまま。
+export async function connectRoomAuth() {
+  const fb = getFirebase();
+  if (!fb) return { ok: false, reason: "not-configured" };
+  const { app, db, ref, get, set } = await fb;
+  const authModule = await import(
+    "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"
+  );
+  const auth = authModule.getAuth(app);
+
+  function friendlyAuthError(err) {
+    const code = err?.code || "";
+    if (code.includes("email-already-in-use")) return "このメールアドレスは既に登録されています。ログインしてください。";
+    if (code.includes("wrong-password") || code.includes("invalid-credential")) return "メールアドレスまたはパスワードが違います。";
+    if (code.includes("user-not-found")) return "このメールアドレスはまだ登録されていません。新規登録してください。";
+    if (code.includes("weak-password")) return "パスワードは6文字以上にしてください。";
+    if (code.includes("invalid-email")) return "メールアドレスの形式が正しくありません。";
+    return "エラーが発生しました。もう一度お試しください。";
+  }
+
+  async function claimRoom(room) {
+    const user = auth.currentUser;
+    if (!user) return { ok: false, message: "先にログインしてください。" };
+    const registryRef = ref(db, `roomRegistry/${room}`);
+    const snap = await get(registryRef);
+    if (snap.exists()) {
+      const entry = snap.val();
+      if (entry.uid !== user.uid) {
+        return { ok: false, message: "このルーム名は既に他の人が使用しています。別の名前を選んでください。" };
+      }
+      return { ok: true };
+    }
+    await set(registryRef, { uid: user.uid, email: user.email, registeredAt: Date.now() });
+    return { ok: true };
+  }
+
+  return {
+    ok: true,
+    onAuthChange: (cb) => authModule.onAuthStateChanged(auth, cb),
+    currentUser: () => auth.currentUser,
+    signUp: async (email, password) => {
+      try {
+        await authModule.createUserWithEmailAndPassword(auth, email, password);
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, message: friendlyAuthError(err) };
+      }
+    },
+    signIn: async (email, password) => {
+      try {
+        await authModule.signInWithEmailAndPassword(auth, email, password);
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, message: friendlyAuthError(err) };
+      }
+    },
+    signOut: () => authModule.signOut(auth),
+    claimRoom,
+  };
 }
 
 export async function connectGame() {

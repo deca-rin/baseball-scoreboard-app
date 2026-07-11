@@ -1,6 +1,7 @@
 import {
   connectGame,
   connectArchives,
+  connectRoomAuth,
   defaultState,
   battingTeamOf,
   maxInningOf,
@@ -16,7 +17,15 @@ const els = {
   qrImg: document.getElementById("qr-img"),
   copyLinkBtn: document.getElementById("copy-link-btn"),
   changeRoomInput: document.getElementById("change-room-input"),
-  changeRoomBtn: document.getElementById("change-room-btn"),
+  roomAuthStatus: document.getElementById("room-auth-status"),
+  roomAuthMessage: document.getElementById("room-auth-message"),
+  roomAuthForm: document.getElementById("room-auth-form"),
+  authEmailInput: document.getElementById("auth-email-input"),
+  authPasswordInput: document.getElementById("auth-password-input"),
+  signupClaimBtn: document.getElementById("signup-claim-btn"),
+  signinClaimBtn: document.getElementById("signin-claim-btn"),
+  useRoomBtn: document.getElementById("use-room-btn"),
+  roomSignoutBtn: document.getElementById("room-signout-btn"),
   awayName: document.getElementById("away-name-input"),
   homeName: document.getElementById("home-name-input"),
   inningHalfDisplay: document.getElementById("inning-half-display"),
@@ -52,7 +61,18 @@ const els = {
 let state = null;
 let game = null;
 let archives = null;
+let roomAuth = null;
 let activeOrderTeam = "away";
+
+function sanitizeRoomName(raw) {
+  return raw.trim().toLowerCase().replace(/[^a-z0-9-_]/g, "");
+}
+
+function goToRoom(room) {
+  const url = new URL(location.href);
+  url.searchParams.set("room", room);
+  location.href = url.toString();
+}
 
 function lights(container, count, max, cls, onSetCount) {
   container.innerHTML = "";
@@ -366,16 +386,55 @@ function bindEvents() {
     }
   });
 
-  els.changeRoomBtn.addEventListener("click", () => {
-    const raw = els.changeRoomInput.value.trim();
-    const sanitized = raw.replace(/[^a-zA-Z0-9-_]/g, "");
+  function readRoomName() {
+    const sanitized = sanitizeRoomName(els.changeRoomInput.value);
     if (!sanitized) {
-      alert("ルーム名は半角英数字・ハイフン・アンダースコアで入力してください。");
+      els.roomAuthMessage.textContent = "ルーム名は半角英数字・ハイフン・アンダースコアで入力してください。";
+      return null;
+    }
+    return sanitized;
+  }
+
+  async function claimAndGo(authAction) {
+    const room = readRoomName();
+    if (!room) return;
+    const email = els.authEmailInput.value.trim();
+    const password = els.authPasswordInput.value;
+    if (!email || !password) {
+      els.roomAuthMessage.textContent = "メールアドレスとパスワードを入力してください。";
       return;
     }
-    const url = new URL(location.href);
-    url.searchParams.set("room", sanitized);
-    location.href = url.toString();
+    els.roomAuthMessage.textContent = "";
+    const authResult = await authAction(email, password);
+    if (!authResult.ok) {
+      els.roomAuthMessage.textContent = authResult.message;
+      return;
+    }
+    const claimResult = await roomAuth.claimRoom(room);
+    if (!claimResult.ok) {
+      els.roomAuthMessage.textContent = claimResult.message;
+      return;
+    }
+    goToRoom(room);
+  }
+
+  els.signupClaimBtn.addEventListener("click", () => claimAndGo(roomAuth.signUp));
+  els.signinClaimBtn.addEventListener("click", () => claimAndGo(roomAuth.signIn));
+
+  els.useRoomBtn.addEventListener("click", async () => {
+    const room = readRoomName();
+    if (!room) return;
+    els.roomAuthMessage.textContent = "";
+    const claimResult = await roomAuth.claimRoom(room);
+    if (!claimResult.ok) {
+      els.roomAuthMessage.textContent = claimResult.message;
+      return;
+    }
+    goToRoom(room);
+  });
+
+  els.roomSignoutBtn.addEventListener("click", () => {
+    roomAuth.signOut();
   });
 }
 
@@ -405,6 +464,18 @@ async function main() {
     state = val;
     render();
   });
+
+  roomAuth = await connectRoomAuth();
+  if (roomAuth.ok) {
+    roomAuth.onAuthChange((user) => {
+      const loggedIn = !!user;
+      els.roomAuthForm.style.display = loggedIn ? "none" : "block";
+      els.useRoomBtn.style.display = loggedIn ? "block" : "none";
+      els.roomSignoutBtn.style.display = loggedIn ? "block" : "none";
+      els.roomAuthStatus.textContent = loggedIn ? `ログイン中: ${user.email}` : "未ログイン（ルーム名を変更するにはログインが必要です）";
+      els.roomAuthMessage.textContent = "";
+    });
+  }
 }
 
 main();
