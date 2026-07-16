@@ -11,6 +11,9 @@ import {
 
 const els = {
   setupError: document.getElementById("setup-error"),
+  roomLocked: document.getElementById("room-locked"),
+  roomLockedMessage: document.getElementById("room-locked-message"),
+  roomLockedRetryBtn: document.getElementById("room-locked-retry-btn"),
   app: document.getElementById("app"),
   roomCode: document.getElementById("room-code"),
   viewerLink: document.getElementById("viewer-link"),
@@ -438,6 +441,20 @@ function bindEvents() {
   });
 }
 
+async function tryEnterRoom() {
+  roomAuth = await connectRoomAuth();
+  if (!roomAuth.ok) return true; // 未設定時は setup-error 側で処理済みなのでそのまま進む
+
+  const result = await roomAuth.enterRoomSession(game.room);
+  if (!result.ok && result.locked) {
+    els.roomLockedMessage.textContent = result.message;
+    els.roomLocked.style.display = "block";
+    els.app.style.display = "none";
+    return false;
+  }
+  return true;
+}
+
 async function main() {
   game = await connectGame();
   if (!game.ok) {
@@ -447,6 +464,11 @@ async function main() {
   }
 
   els.setupError.style.display = "none";
+  els.roomLocked.style.display = "none";
+
+  const entered = await tryEnterRoom();
+  if (!entered) return;
+
   els.app.style.display = "block";
   els.roomCode.textContent = game.room;
   els.changeRoomInput.value = game.room;
@@ -459,23 +481,24 @@ async function main() {
   bindEvents();
   updateOrderTabs();
 
+  els.roomLockedRetryBtn.addEventListener("click", () => location.reload());
+
+  roomAuth.onAuthChange((user) => {
+    const loggedIn = !!user;
+    els.roomAuthForm.style.display = loggedIn ? "none" : "block";
+    els.useRoomBtn.style.display = loggedIn ? "block" : "none";
+    els.roomSignoutBtn.style.display = loggedIn ? "block" : "none";
+    els.roomAuthStatus.textContent = loggedIn
+      ? `ログイン中: ${user.email}`
+      : "未ログイン（ルーム名を変更するにはログインが必要です）";
+    els.roomAuthMessage.textContent = "";
+  });
+
   game.subscribe((val) => {
     if (!val) return;
     state = val;
     render();
   });
-
-  roomAuth = await connectRoomAuth();
-  if (roomAuth.ok) {
-    roomAuth.onAuthChange((user) => {
-      const loggedIn = !!user;
-      els.roomAuthForm.style.display = loggedIn ? "none" : "block";
-      els.useRoomBtn.style.display = loggedIn ? "block" : "none";
-      els.roomSignoutBtn.style.display = loggedIn ? "block" : "none";
-      els.roomAuthStatus.textContent = loggedIn ? `ログイン中: ${user.email}` : "未ログイン（ルーム名を変更するにはログインが必要です）";
-      els.roomAuthMessage.textContent = "";
-    });
-  }
 }
 
 main();

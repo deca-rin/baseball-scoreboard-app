@@ -26,6 +26,13 @@
   </p>
 </div>
 
+<div id="room-locked" class="setup-error" style="display:none;">
+  <div class="badge">🔒 操作中</div>
+  <h1>他の画面で操作中です</h1>
+  <p class="small" id="room-locked-message"></p>
+  <button class="primary" id="room-locked-retry-btn" style="margin-top:16px;">再確認する</button>
+</div>
+
 <div id="app" style="display:none;">
   <div class="badge">⚾ SCOREBOARD CONTROL</div>
   <h1>操縦席（入力用）</h1>
@@ -82,6 +89,7 @@
     <p class="small" style="margin-top:14px;">
       チームごとに専用のURLを持たせたい場合は、分かりやすいルーム名に変更できます（例: <code>team-a</code>）。
       名前の重複を防ぐため、メールアドレスでの簡単な登録・確認が必要です。同じ名前で再度ログインすれば、同じ試合の続きに戻れます。
+      また、同じルームは一度に1画面でしか操作できません。
     </p>
     <div class="row">
       <input type="text" id="change-room-input" placeholder="例: team-a" style="flex:1;" />

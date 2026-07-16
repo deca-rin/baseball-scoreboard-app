@@ -120,17 +120,41 @@ function getFirebase() {
   return firebasePromise;
 }
 
-// チーム名(ルーム名)の重複を防ぐための、Firebase Authenticationを使った登録・確認。
-// メール/パスワードでサインアップ/ログインし、そのUIDをルーム名の「所有者」として
-// roomRegistry に記録する。実際のスコア入力・閲覧(games/archives)はログイン不要のまま。
+const SESSION_HEARTBEAT_MS = 10000;
+const SESSION_STALE_MS = 30000;
+const mySessionId = `${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+
+// チーム名(ルーム名)の重複防止(Firebase Authenticationでのメール/パスワード登録)と、
+// 同時操作の防止(登録済みルームを開いている間ハートビートを送り、同じルームを
+// 別の画面が同時に操作しようとした場合はブロックする)を行う。
+// 実際のスコア入力・閲覧(games/archives)はログイン不要のまま。
 export async function connectRoomAuth() {
   const fb = getFirebase();
   if (!fb) return { ok: false, reason: "not-configured" };
-  const { app, db, ref, get, set } = await fb;
+  const { app, db, ref, get, runTransaction, update } = await fb;
   const authModule = await import(
     "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js"
   );
   const auth = authModule.getAuth(app);
+
+  let heartbeatTimer = null;
+
+  function stopHeartbeat() {
+    if (heartbeatTimer) clearInterval(heartbeatTimer);
+    heartbeatTimer = null;
+  }
+
+  function startHeartbeat(room) {
+    stopHeartbeat();
+    const tick = () =>
+      update(ref(db, `roomRegistry/${room}/session`), {
+        sessionId: mySessionId,
+        heartbeatAt: Date.now(),
+      });
+    tick();
+    heartbeatTimer = setInterval(tick, SESSION_HEARTBEAT_MS);
+    window.addEventListener("beforeunload", stopHeartbeat);
+  }
 
   function friendlyAuthError(err) {
     const code = err?.code || "";
@@ -142,20 +166,59 @@ export async function connectRoomAuth() {
     return "エラーが発生しました。もう一度お試しください。";
   }
 
+  // ルーム名の新規登録・確認(「ルーム名を変更」の操作から呼ばれる)。ログイン必須。
   async function claimRoom(room) {
     const user = auth.currentUser;
     if (!user) return { ok: false, message: "先にログインしてください。" };
-    const registryRef = ref(db, `roomRegistry/${room}`);
-    const snap = await get(registryRef);
-    if (snap.exists()) {
-      const entry = snap.val();
-      if (entry.uid !== user.uid) {
-        return { ok: false, message: "このルーム名は既に他の人が使用しています。別の名前を選んでください。" };
-      }
-      return { ok: true };
+    let result = { ok: true };
+    try {
+      await runTransaction(ref(db, `roomRegistry/${room}`), (current) => {
+        if (current) {
+          if (current.uid !== user.uid) {
+            result = { ok: false, message: "このルーム名は既に他の人が使用しています。別の名前を選んでください。" };
+            return current; // 変更せず中止
+          }
+          return current; // 既に自分のものなのでそのまま
+        }
+        return { uid: user.uid, email: user.email, registeredAt: Date.now() };
+      });
+    } catch {
+      result = { ok: false, message: "登録に失敗しました。時間をおいてもう一度お試しください。" };
     }
-    await set(registryRef, { uid: user.uid, email: user.email, registeredAt: Date.now() });
-    return { ok: true };
+    return result;
+  }
+
+  // 登録済みルームを開く際に呼ぶ。ログイン不要。同時に他の画面が操作中でなければロックを取得する。
+  // ("session" 以下だけを操作することで、claimRoom(ログイン必須)とは別の
+  //  ルールパスとして扱えるようにしている。詳しくは README のルール例を参照。)
+  async function enterRoomSession(room) {
+    let result = { ok: true, locked: false };
+    try {
+      const snap = await get(ref(db, `roomRegistry/${room}`));
+      if (!snap.exists()) return result; // 未登録ルームはロック不要
+
+      await runTransaction(ref(db, `roomRegistry/${room}/session`), (session) => {
+        const now = Date.now();
+        if (
+          session &&
+          session.sessionId !== mySessionId &&
+          now - (session.heartbeatAt || 0) < SESSION_STALE_MS
+        ) {
+          result = {
+            ok: false,
+            locked: true,
+            message: "このルームは現在、別の画面で操作中です。少し待ってから開き直してください。",
+          };
+          return session; // 変更せず中止
+        }
+        return { sessionId: mySessionId, heartbeatAt: now };
+      });
+    } catch {
+      // ルームロックの確認に失敗した場合は、ブロックせずそのまま利用を許可する
+      result = { ok: true, locked: false };
+    }
+    if (result.ok) startHeartbeat(room);
+    return result;
   }
 
   return {
@@ -180,6 +243,8 @@ export async function connectRoomAuth() {
     },
     signOut: () => authModule.signOut(auth),
     claimRoom,
+    enterRoomSession,
+    stopHeartbeat,
   };
 }
 
