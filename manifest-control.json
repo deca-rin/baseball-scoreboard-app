@@ -1,6 +1,6 @@
 {
-  "name": "スコアボード操縦席",
-  "short_name": "操縦席",
+  "name": "スコア入力",
+  "short_name": "スコア入力",
   "description": "野球ライブスコアボードの入力用アプリ",
   "start_url": "./index.html",
   "scope": "./",
