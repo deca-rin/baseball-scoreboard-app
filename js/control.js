@@ -6,6 +6,7 @@ import {
   battingTeamOf,
   maxInningOf,
   finalInningOf,
+  hasBattedInInning,
   viewerUrlFor,
 } from "./state.js";
 
@@ -150,7 +151,8 @@ function renderScoreTable() {
       input.type = "number";
       input.min = "0";
       const val = teamScores[String(i)];
-      input.value = val ?? "";
+      const isActive = i === state.inning && battingTeamOf(state) === team;
+      input.value = val ?? (!isActive && hasBattedInInning(state, team, i) ? "0" : "");
       total += Number(val) || 0;
       input.addEventListener("change", () => {
         const n = Math.max(0, Number(input.value) || 0);
