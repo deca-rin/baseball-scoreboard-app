@@ -7,6 +7,7 @@ import {
   maxInningOf,
   finalInningOf,
   hasBattedInInning,
+  shouldShowX,
   viewerUrlFor,
 } from "./state.js";
 
@@ -147,18 +148,24 @@ function renderScoreTable() {
     let total = 0;
     for (let i = 1; i <= maxInning; i++) {
       const td = document.createElement("td");
-      const input = document.createElement("input");
-      input.type = "number";
-      input.min = "0";
       const val = teamScores[String(i)];
-      const isActive = i === state.inning && battingTeamOf(state) === team;
-      input.value = val ?? (!isActive && hasBattedInInning(state, team, i) ? "0" : "");
       total += Number(val) || 0;
-      input.addEventListener("change", () => {
-        const n = Math.max(0, Number(input.value) || 0);
-        game.patch({ [`scores/${team}/${i}`]: n });
-      });
-      td.appendChild(input);
+
+      if (val === undefined && team === "home" && shouldShowX(state, i)) {
+        td.textContent = "×";
+        td.style.textAlign = "center";
+      } else {
+        const input = document.createElement("input");
+        input.type = "number";
+        input.min = "0";
+        const isActive = i === state.inning && battingTeamOf(state) === team;
+        input.value = val ?? (!isActive && hasBattedInInning(state, team, i) ? "0" : "");
+        input.addEventListener("change", () => {
+          const n = Math.max(0, Number(input.value) || 0);
+          game.patch({ [`scores/${team}/${i}`]: n });
+        });
+        td.appendChild(input);
+      }
       tr.appendChild(td);
     }
     const totalTd = document.createElement("td");
