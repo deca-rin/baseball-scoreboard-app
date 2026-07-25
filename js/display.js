@@ -5,6 +5,7 @@ import {
   totalOf,
   hasBattedInInning,
   shouldShowX,
+  isWalkoffLead,
   formatTournamentDateTime,
 } from "./state.js";
 
@@ -90,7 +91,8 @@ function renderScoreTable(state) {
       if (isActive) td.classList.add("active-cell");
       const val = teamScores[String(i)];
       if (val !== undefined) {
-        td.textContent = val;
+        const walkoffWin = team === "home" && i === state.inning && isWalkoffLead(state);
+        td.textContent = walkoffWin ? `${val}×` : val;
       } else if (team === "home" && shouldShowX(state, i)) {
         td.textContent = "×";
       } else {

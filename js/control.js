@@ -194,6 +194,14 @@ function renderScoreTable() {
           game.patch({ [`scores/${team}/${i}`]: n });
         });
         td.appendChild(input);
+
+        if (val !== undefined && team === "home" && i === state.inning && isWalkoffLead(state)) {
+          const walkoffMark = document.createElement("span");
+          walkoffMark.textContent = "×";
+          walkoffMark.style.marginLeft = "4px";
+          walkoffMark.style.color = "var(--amber)";
+          td.appendChild(walkoffMark);
+        }
       }
       tr.appendChild(td);
     }
