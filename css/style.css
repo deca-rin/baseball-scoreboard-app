@@ -143,6 +143,15 @@ button:active {
   transform: scale(0.96);
 }
 
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+button:disabled:active {
+  transform: none;
+}
+
 button.primary {
   background: linear-gradient(180deg, #2a63ff, #1642c9);
   border-color: #3a6bff;

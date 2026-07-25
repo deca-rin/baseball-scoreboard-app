@@ -113,15 +113,26 @@ function render() {
   const halfLabel = state.half === "top" ? "表" : "裏";
   els.inningHalfDisplay.textContent = `${state.inning} 回 ${halfLabel}`;
   const battingTeam = battingTeamOf(state);
-  els.battingTeamLabel.textContent = `現在の攻撃: ${state.teams[battingTeam].name}`;
+  const gameOver = shouldShowX(state, state.inning);
+  els.battingTeamLabel.textContent = gameOver
+    ? "試合終了（得点表は引き続き訂正できます）"
+    : `現在の攻撃: ${state.teams[battingTeam].name}`;
   els.advanceBatterBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
   els.hitAdvanceBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
   els.manualInning.value = state.inning;
   els.manualHalf.value = state.half;
 
-  lights(els.ballsLights, state.count.balls, 3, "b", (n) => game.patch({ "count/balls": n }));
-  lights(els.strikesLights, state.count.strikes, 2, "s", (n) => game.patch({ "count/strikes": n }));
-  lights(els.outsLights, state.count.outs, 2, "o", (n) => game.patch({ "count/outs": n }));
+  els.switchHalfBtn.disabled = gameOver;
+  els.addRunBtn.disabled = gameOver;
+  els.addBallBtn.disabled = gameOver;
+  els.addStrikeBtn.disabled = gameOver;
+  els.addOutBtn.disabled = gameOver;
+  els.hitAdvanceBtn.disabled = gameOver;
+  els.resetCountBtn.disabled = gameOver;
+
+  lights(els.ballsLights, state.count.balls, 3, "b", gameOver ? null : (n) => game.patch({ "count/balls": n }));
+  lights(els.strikesLights, state.count.strikes, 2, "s", gameOver ? null : (n) => game.patch({ "count/strikes": n }));
+  lights(els.outsLights, state.count.outs, 2, "o", gameOver ? null : (n) => game.patch({ "count/outs": n }));
 
   renderScoreTable();
   renderOrderList("away");
