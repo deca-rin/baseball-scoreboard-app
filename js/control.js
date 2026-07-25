@@ -196,10 +196,15 @@ function renderScoreTable() {
         td.appendChild(input);
 
         if (val !== undefined && team === "home" && i === state.inning && isWalkoffLead(state)) {
+          td.style.display = "flex";
+          td.style.alignItems = "center";
+          td.style.justifyContent = "center";
+          td.style.gap = "2px";
+          input.style.width = "65%";
           const walkoffMark = document.createElement("span");
           walkoffMark.textContent = "×";
-          walkoffMark.style.marginLeft = "4px";
           walkoffMark.style.color = "var(--amber)";
+          walkoffMark.style.fontWeight = "700";
           td.appendChild(walkoffMark);
         }
       }
