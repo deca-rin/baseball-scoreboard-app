@@ -9,6 +9,9 @@ import {
   hasBattedInInning,
   shouldShowX,
   isGameOver,
+  isWalkoffLead,
+  canAddWalkoffRun,
+  totalOf,
   viewerUrlFor,
 } from "./state.js";
 
@@ -97,6 +100,29 @@ function lights(container, count, max, cls, onSetCount) {
   }
 }
 
+// ボタンの有効/無効と試合終了表示だけを更新する軽量な処理。
+// 15秒の猶予タイマーを反映するため、render()とは別に1秒ごとにも呼び出す
+// （render()は得点表・打順を作り直すため、入力中のフォーカスを壊してしまう）。
+function updateLockState() {
+  if (!state) return;
+  const gameOver = isGameOver(state);
+  const battingTeam = battingTeamOf(state);
+  els.battingTeamLabel.textContent = gameOver
+    ? "試合終了（得点表は引き続き訂正できます）"
+    : `現在の攻撃: ${state.teams[battingTeam].name}`;
+
+  const walkoff = isWalkoffLead(state);
+  const canAddRun = walkoff ? canAddWalkoffRun(state) : !gameOver;
+
+  els.switchHalfBtn.disabled = gameOver;
+  els.addRunBtn.disabled = !canAddRun;
+  els.addBallBtn.disabled = gameOver;
+  els.addStrikeBtn.disabled = gameOver;
+  els.addOutBtn.disabled = gameOver;
+  els.hitAdvanceBtn.disabled = gameOver;
+  els.resetCountBtn.disabled = gameOver;
+}
+
 function render() {
   if (!state) return;
 
@@ -114,23 +140,14 @@ function render() {
   const halfLabel = state.half === "top" ? "表" : "裏";
   els.inningHalfDisplay.textContent = `${state.inning} 回 ${halfLabel}`;
   const battingTeam = battingTeamOf(state);
-  const gameOver = isGameOver(state);
-  els.battingTeamLabel.textContent = gameOver
-    ? "試合終了（得点表は引き続き訂正できます）"
-    : `現在の攻撃: ${state.teams[battingTeam].name}`;
   els.advanceBatterBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
   els.hitAdvanceBtn.textContent = `⚾ ヒット等で次の打者へ（${state.teams[battingTeam].name}）`;
   els.manualInning.value = state.inning;
   els.manualHalf.value = state.half;
 
-  els.switchHalfBtn.disabled = gameOver;
-  els.addRunBtn.disabled = gameOver;
-  els.addBallBtn.disabled = gameOver;
-  els.addStrikeBtn.disabled = gameOver;
-  els.addOutBtn.disabled = gameOver;
-  els.hitAdvanceBtn.disabled = gameOver;
-  els.resetCountBtn.disabled = gameOver;
+  updateLockState();
 
+  const gameOver = isGameOver(state);
   lights(els.ballsLights, state.count.balls, 3, "b", gameOver ? null : (n) => game.patch({ "count/balls": n }));
   lights(els.strikesLights, state.count.strikes, 2, "s", gameOver ? null : (n) => game.patch({ "count/strikes": n }));
   lights(els.outsLights, state.count.outs, 2, "o", gameOver ? null : (n) => game.patch({ "count/outs": n }));
@@ -357,7 +374,19 @@ function bindEvents() {
   els.addRunBtn.addEventListener("click", () => {
     const battingTeam = battingTeamOf(state);
     const cur = ((state.scores || {})[battingTeam] || {})[String(state.inning)] || 0;
-    game.patch({ [`scores/${battingTeam}/${state.inning}`]: cur + 1 });
+    const patch = { [`scores/${battingTeam}/${state.inning}`]: cur + 1 };
+
+    if (battingTeam === "home" && !state.walkoffAt) {
+      const newHomeTotal = totalOf(state, "home") + 1;
+      const willBeWalkoffLead =
+        state.half === "bottom" &&
+        state.inning >= finalInningOf(state) &&
+        newHomeTotal > totalOf(state, "away");
+      if (willBeWalkoffLead) {
+        patch.walkoffAt = Date.now();
+      }
+    }
+    game.patch(patch);
   });
 
   els.addBallBtn.addEventListener("click", recordBall);
@@ -520,6 +549,10 @@ async function main() {
     state = val;
     render();
   });
+
+  // サヨナラ逆転からの猶予時間(15秒)経過を検知するため、定期的にボタンの
+  // 有効/無効だけを再確認する（得点表や打順を作り直す render() は呼ばない）。
+  setInterval(updateLockState, 1000);
 }
 
 main();

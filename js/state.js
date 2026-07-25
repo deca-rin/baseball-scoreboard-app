@@ -77,9 +77,33 @@ export function isGameOverAfterRegulation(state) {
   return totalOf(state, "away") > totalOf(state, "home");
 }
 
+const WALKOFF_GRACE_MS = 15000;
+const WALKOFF_MAX_LEAD = 4;
+
+// 最終回(以降)の裏で、ホームが攻撃中に逆転(またはリード)した状態かどうか。
+// 本来ならその瞬間に試合終了だが、満塁本塁打などで複数点が一度に入る
+// ケースに対応するため、猶予時間・上乗せ点数の範囲内では得点追加を許可する。
+export function isWalkoffLead(state) {
+  return (
+    state.half === "bottom" &&
+    state.inning >= finalInningOf(state) &&
+    totalOf(state, "home") > totalOf(state, "away")
+  );
+}
+
+// 逆転した瞬間(walkoffAt)から15秒以内、かつリード差が4点未満なら、
+// もう1点追加する猶予がある。
+export function canAddWalkoffRun(state, now = Date.now()) {
+  if (!isWalkoffLead(state)) return true;
+  if (!state.walkoffAt) return true;
+  const withinTime = now - state.walkoffAt < WALKOFF_GRACE_MS;
+  const withinCap = totalOf(state, "home") - totalOf(state, "away") < WALKOFF_MAX_LEAD;
+  return withinTime && withinCap;
+}
+
 // どちらかの理由で試合が終了しているかどうか。
 export function isGameOver(state) {
-  return shouldShowX(state, state.inning) || isGameOverAfterRegulation(state);
+  return shouldShowX(state, state.inning) || isGameOverAfterRegulation(state) || isWalkoffLead(state);
 }
 
 export function getRoomId() {
