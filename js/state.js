@@ -67,6 +67,19 @@ export function shouldShowX(state, inningNum) {
   return totalOf(state, "home") > totalOf(state, "away");
 }
 
+// 最終回の裏の攻撃が終わった時点(=最終回+1の表)で、表(先攻)が勝っている場合は
+// 延長の必要がないため、そこで試合終了とする判定。
+export function isGameOverAfterRegulation(state) {
+  const final = finalInningOf(state);
+  if (state.inning !== final + 1 || state.half !== "top") return false;
+  return totalOf(state, "away") > totalOf(state, "home");
+}
+
+// どちらかの理由で試合が終了しているかどうか。
+export function isGameOver(state) {
+  return shouldShowX(state, state.inning) || isGameOverAfterRegulation(state);
+}
+
 export function getRoomId() {
   const params = new URLSearchParams(location.search);
   let room = params.get("room");

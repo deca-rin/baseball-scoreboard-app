@@ -8,6 +8,7 @@ import {
   finalInningOf,
   hasBattedInInning,
   shouldShowX,
+  isGameOver,
   viewerUrlFor,
 } from "./state.js";
 
@@ -113,7 +114,7 @@ function render() {
   const halfLabel = state.half === "top" ? "表" : "裏";
   els.inningHalfDisplay.textContent = `${state.inning} 回 ${halfLabel}`;
   const battingTeam = battingTeamOf(state);
-  const gameOver = shouldShowX(state, state.inning);
+  const gameOver = isGameOver(state);
   els.battingTeamLabel.textContent = gameOver
     ? "試合終了（得点表は引き続き訂正できます）"
     : `現在の攻撃: ${state.teams[battingTeam].name}`;
