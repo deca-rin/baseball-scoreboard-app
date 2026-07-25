@@ -41,7 +41,9 @@ export function maxInningOf(state) {
     ...Object.keys(state.scores?.away || {}),
     ...Object.keys(state.scores?.home || {}),
   ].map(Number);
-  return Math.max(finalInningOf(state), state.inning || 1, ...(innings.length ? innings : [0]));
+  // 最終回終了時点で表が勝って試合が決まった場合は、次の回（延長）の列は表示しない。
+  const inningCandidate = isGameOverAfterRegulation(state) ? finalInningOf(state) : state.inning || 1;
+  return Math.max(finalInningOf(state), inningCandidate, ...(innings.length ? innings : [0]));
 }
 
 // そのチームが指定イニングの打席を(一部でも)迎えたかどうか。
